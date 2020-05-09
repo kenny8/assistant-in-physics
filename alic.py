@@ -106,7 +106,7 @@ def cheak_answer(word, res, user_id):
 
     wor = word.split()
 
-    for wod in wor:
+    for wod in wor:  # разбор предложения пользователя
         if len(wod) >= 3:
             for sec in section:
                 if sec.startswith(wod[:-2]):
@@ -119,9 +119,9 @@ def cheak_answer(word, res, user_id):
                 if n_of_f.startswith(wod[:-2]):
                     USERS[user_id][0]['name_of_formula'] = n_of_f
 
-    if USERS[user_id][0]['name_of_formula'] == '' and USERS[user_id][0]['subsection'] != '':
-        txt = tips('subsection', 'name_of_formula', USERS[user_id][0]['subsection'], user_id)
-    elif USERS[user_id][0]['subsection'] == '' and USERS[user_id][0]['name_of_formula'] != '':
+    if USERS[user_id][0]['name_of_formula'] == '' and USERS[user_id][0]['subsection'] != '':   # следущийй  вопрос
+        txt = tips('subsection', 'name_of_formula', USERS[user_id][0]['subsection'], user_id)  # взависимости  от  
+    elif USERS[user_id][0]['subsection'] == '' and USERS[user_id][0]['name_of_formula'] != '':  # того что известно
         txt = tips('name_of_formula', 'subsection', USERS[user_id][0]['name_of_formula'], user_id)
     USERS[user_id][0]['last_word'] = txt[0]
     return txt
@@ -155,7 +155,7 @@ def get_answer_study(user_id):  # ответ
     return False
 
 
-def answer_study(word, res, user_id):
+def answer_study(word, res, user_id):  # раздел  обучения
     txt = ('возможно вы ошиблись', {})
     section = []  # тип формулы, например  механика
     subsection = []  # подтип фолмулы например равномерное движение в механике
@@ -194,7 +194,7 @@ def answer_study(word, res, user_id):
         txt = ('все готово, начнем,когда надоест  скажите  стоп', {'стоп'})
         USERS[user_id][0]['subsection'] = '-'
     wor = word.split()
-    for wod in wor:
+    for wod in wor:  # разбор предложения пользователя
         if len(wod) >= 3:
             for sec in section:
                 if sec.startswith(wod[
@@ -207,7 +207,7 @@ def answer_study(word, res, user_id):
                     txt = ('все готово, начнем,когда надоест  скажите  стоп', {'стоп'})
                     USERS[user_id][0]['subsection'] = sub
 
-    if USERS[user_id][0]['subsection'] != '' and USERS[user_id][0]['work'] is False:
+    if USERS[user_id][0]['subsection'] != '' and USERS[user_id][0]['work'] is False:  # составления вопроса
         USERS[user_id][0]['work'] = True
         if USERS[user_id][0]['subsection'] == '-':
             question_work_piece = db_seach(
@@ -235,17 +235,16 @@ def answer_study(word, res, user_id):
         USERS[user_id][0]['answer_true_or_false'] = True
         USERS[user_id][0]['last_question'].clear()
 
-    if len(USERS[user_id][0]['last_question']) != 0:
+    if len(USERS[user_id][0]['last_question']) != 0:  # проверка ответа пользователя
         if word == USERS[user_id][0]['last_question'][0][1]:
             n = USERS[user_id][0]['question'].pop(
                 USERS[user_id][0]['question'].index(USERS[user_id][0]['last_question'][0]))
             USERS[user_id][0]['last_question'].clear()
         else:
-            # txt = ('неправильно, вот правильный ответ: ' + USERS[user_id][0]['last_question'][0][1], {'стоп', 'следущее'})
             txt = ('неправильно', {'стоп', 'следущее'})
             USERS[user_id][0]['answer_true_or_false'] = False
 
-    if len(USERS[user_id][0]['question']) > 0 and USERS[user_id][0]['answer_true_or_false']:
+    if len(USERS[user_id][0]['question']) > 0 and USERS[user_id][0]['answer_true_or_false']:  # выбор  нового вопроса
         USERS[user_id][0]['last_question'].append(random.choice(USERS[user_id][0]['question']))
         txt = (USERS[user_id][0]['last_question'][0][0], {'стоп'})
     elif len(USERS[user_id][0]['question']) == 0 and USERS[user_id][0]['subsection'] != '':
@@ -284,7 +283,7 @@ def handle_dialog(res, req):  # выдача ответов
         word = req['request']['command']  # ответ пользователя
         word = word.lower()
         if new_mode(user_id, word):
-            if USERS[user_id][0]['mode'] == 'remember':
+            if USERS[user_id][0]['mode'] == 'remember':  # найти формолу
                 answer = cheak_answer(word, res, user_id)
                 if answer[0] != 'возможно вы ошиблись':
                     res['response']['text'] = answer[0]
@@ -321,7 +320,7 @@ def handle_dialog(res, req):  # выдача ответов
                             'hide': True
                         } for wor in word_ans
                     ]
-            elif USERS[user_id][0]['mode'] == 'study':
+            elif USERS[user_id][0]['mode'] == 'study':   # выучить  формулу
                 answer = answer_study(word, res, user_id)
                 if answer[0] != 'возможно вы ошиблись' and answer[0] != 'неправильно':
                     res['response']['text'] = answer[0]
